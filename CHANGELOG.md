@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.1 - Multiplayer map sync hotfix
+
+- Added stable selected-map lobby sync with `loadedLevelKey`.
+- Clients now select the host's map by map identity instead of trusting list indexes, fixing intermittent custom-map mismatches when map order differs between players.
+- Kept the old `loadedLevelEntry` index as a fallback for older lobby data.
+- RavenM now publishes the selected map name for all maps so the lobby browser does not show `Default` for configured maps.
+
 ## 1.0 - EA36 compatibility
 
 - Updated RavenM's compatibility gate from Ravenfield EA29 to EA36.

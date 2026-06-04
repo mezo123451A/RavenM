@@ -122,6 +122,31 @@ namespace RavenM
             }
         }
 
+        public static string SelectedMapKey
+        {
+            get
+            {
+                var selected = SelectedMap;
+                return selected == null ? "" : GetMapKey(selected);
+            }
+        }
+
+        public static bool SelectMapByKey(string key)
+        {
+            if (string.IsNullOrEmpty(key))
+                return false;
+
+            var maps = MapEntries;
+            var selected = maps.FirstOrDefault(map => GetMapKey(map) == key)
+                ?? maps.FirstOrDefault(map => GetMapFallbackKey(map) == key);
+
+            if (selected == null)
+                return false;
+
+            InstantActionConfigMenu.instance?.SelectMap(selected);
+            return true;
+        }
+
         public static string SelectedMapName
         {
             get
@@ -242,6 +267,39 @@ namespace RavenM
         private static bool SameMap(MapEntryData a, MapEntryData b)
         {
             return a != null && b != null && a.sceneName == b.sceneName && a.GetName() == b.GetName();
+        }
+
+        private static string GetMapKey(MapEntryData map)
+        {
+            if (map == null)
+                return "";
+
+            return string.Join("|", new[]
+            {
+                map.IsOfficial() ? "official" : "custom",
+                EscapeKeyPart(map.sceneName),
+                EscapeKeyPart(map.GetName()),
+                EscapeKeyPart(map.GetModTitle()),
+            });
+        }
+
+        private static string GetMapFallbackKey(MapEntryData map)
+        {
+            if (map == null)
+                return "";
+
+            return string.Join("|", new[]
+            {
+                map.IsOfficial() ? "official" : "custom",
+                "",
+                EscapeKeyPart(map.GetName()),
+                EscapeKeyPart(map.GetModTitle()),
+            });
+        }
+
+        private static string EscapeKeyPart(string value)
+        {
+            return (value ?? "").Replace("\\", "/").Replace("|", "%7C");
         }
 
         private static void SetBotAmounts(int eagle, int raven)

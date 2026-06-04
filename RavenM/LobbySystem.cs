@@ -680,7 +680,6 @@ namespace RavenM
             // the former at least has visual input for the non-host clients,
             // which is also important.
             // InstantActionConfigMenu's EA36 controls are private; route menu sync through Ea36Compat.
-            int customMapOptionIndex = -1;
             var entries = Ea36Compat.MapEntries;
             // Don't allow spectator.
             if (Ea36Compat.TeamValue == 2)
@@ -700,15 +699,12 @@ namespace RavenM
                 SetLobbyDataDedup("respawnTime", Ea36Compat.RespawnTimeText);
                 SetLobbyDataDedup("gameLength", Ea36Compat.GameLengthValue.ToString());
                 SetLobbyDataDedup("loadedLevelEntry", Ea36Compat.LoadedLevelEntry.ToString());
+                SetLobbyDataDedup("loadedLevelKey", Ea36Compat.SelectedMapKey);
+                SetLobbyDataDedup("customMap", Ea36Compat.SelectedMapName);
                 // For SpecOps.
                 if (Ea36Compat.GameModeValue == 1)
                 {
                     SetLobbyDataDedup("team", Ea36Compat.TeamValue.ToString());
-                }
-
-                if (Ea36Compat.LoadedLevelEntry == customMapOptionIndex)
-                {
-                    SetLobbyDataDedup("customMap", Ea36Compat.SelectedMapName);
                 }
 
                 for (int i = 0; i < 2; i++)
@@ -807,27 +803,21 @@ namespace RavenM
                 if (instance.LoadedServerMods)
                 {
                     int givenEntry = int.Parse(SteamMatchmaking.GetLobbyData(ActualLobbyID, "loadedLevelEntry"));
+                    string givenMapKey = SteamMatchmaking.GetLobbyData(ActualLobbyID, "loadedLevelKey");
+                    string mapName = SteamMatchmaking.GetLobbyData(ActualLobbyID, "customMap");
 
-                    if (givenEntry == customMapOptionIndex)
+                    if (!Ea36Compat.SelectMapByKey(givenMapKey))
                     {
-                        string mapName = SteamMatchmaking.GetLobbyData(ActualLobbyID, "customMap");
-
-                        if (Ea36Compat.LoadedLevelEntry != customMapOptionIndex || entries[customMapOptionIndex].metaData.displayName != mapName)
+                        var mapByName = entries.FirstOrDefault(entry => entry.GetOrLoadMetadata().displayName == mapName);
+                        if (mapByName != null)
                         {
-                            foreach (Transform item in CustomMapsBrowser.instance.contentPanel) 
-                            {
-                                var entry = item.gameObject.GetComponent<CustomMapEntry>();
-                                if (entry.entry.metaData.displayName == mapName)
-                                {
-                                    entry.Select();
-                                }
-                            }
+                            InstantActionConfigMenu.instance.SelectMap(mapByName);
                             doubleCheck = true; //just to be safe
                         }
-                    }
-                    else
-                    {
-                        Ea36Compat.LoadedLevelEntry = givenEntry;
+                        else
+                        {
+                            Ea36Compat.LoadedLevelEntry = givenEntry;
+                        }
                     }
                 }
 
