@@ -351,6 +351,40 @@ namespace RavenM
 
         public Texture2D ProgressTexture = new Texture2D(1, 1);
 
+        private Texture2D LobbyButtonTexture = new Texture2D(1, 1);
+
+        private Texture2D LobbyButtonHoverTexture = new Texture2D(1, 1);
+
+        private Texture2D LobbyButtonActiveTexture = new Texture2D(1, 1);
+
+        private Texture2D LobbyFieldTexture = new Texture2D(1, 1);
+
+        private Texture2D LobbyBoxTexture = new Texture2D(1, 1);
+
+        private Texture2D LobbyAccentTexture = new Texture2D(1, 1);
+
+        private Texture2D LobbyDangerTexture = new Texture2D(1, 1);
+
+        private GUIStyle lobbyPanelStyle;
+
+        private GUIStyle lobbyHeaderStyle;
+
+        private GUIStyle lobbyStatusStyle;
+
+        private GUIStyle lobbyButtonStyle;
+
+        private GUIStyle lobbyFieldStyle;
+
+        private GUIStyle lobbyToggleStyle;
+
+        private GUIStyle lobbyBoxStyle;
+
+        private GUIStyle lobbyProgressStyle;
+
+        private const float LobbyMenuWidth = 260f;
+
+        private const float LobbyPanelMargin = 12f;
+
         public List<CSteamID> OpenLobbies = new List<CSteamID>();
 
         public CSteamID LobbyView = CSteamID.Nil;
@@ -381,11 +415,32 @@ namespace RavenM
         {
             instance = this;
 
-            LobbyBackground.SetPixel(0, 0, Color.black);
+            LobbyBackground.SetPixel(0, 0, new Color(0.015f, 0.02f, 0.025f, 0.88f));
             LobbyBackground.Apply();
 
-            ProgressTexture.SetPixel(0, 0, Color.green);
+            ProgressTexture.SetPixel(0, 0, new Color(0.1f, 0.78f, 1f, 0.95f));
             ProgressTexture.Apply();
+
+            LobbyButtonTexture.SetPixel(0, 0, new Color(0.045f, 0.075f, 0.09f, 0.96f));
+            LobbyButtonTexture.Apply();
+
+            LobbyButtonHoverTexture.SetPixel(0, 0, new Color(0.06f, 0.16f, 0.2f, 0.98f));
+            LobbyButtonHoverTexture.Apply();
+
+            LobbyButtonActiveTexture.SetPixel(0, 0, new Color(0.02f, 0.42f, 0.58f, 1f));
+            LobbyButtonActiveTexture.Apply();
+
+            LobbyFieldTexture.SetPixel(0, 0, new Color(0.008f, 0.018f, 0.024f, 0.96f));
+            LobbyFieldTexture.Apply();
+
+            LobbyBoxTexture.SetPixel(0, 0, new Color(0.02f, 0.05f, 0.065f, 0.96f));
+            LobbyBoxTexture.Apply();
+
+            LobbyAccentTexture.SetPixel(0, 0, new Color(0.0f, 0.62f, 0.9f, 1f));
+            LobbyAccentTexture.Apply();
+
+            LobbyDangerTexture.SetPixel(0, 0, new Color(0.75f, 0.08f, 0.06f, 1f));
+            LobbyDangerTexture.Apply();
         }
 
         private void Start()
@@ -957,6 +1012,126 @@ namespace RavenM
             }
         }
 
+        private void EnsureLobbyStyles()
+        {
+            if (lobbyPanelStyle != null)
+                return;
+
+            lobbyPanelStyle = new GUIStyle(GUI.skin.box)
+            {
+                normal = { background = LobbyBackground, textColor = Color.white },
+                padding = new RectOffset(14, 14, 12, 14),
+                margin = new RectOffset(0, 0, 0, 0)
+            };
+
+            lobbyHeaderStyle = new GUIStyle(GUI.skin.label)
+            {
+                alignment = TextAnchor.MiddleCenter,
+                fontSize = 16,
+                fontStyle = FontStyle.Bold,
+                richText = true,
+                wordWrap = true,
+                normal = { textColor = new Color(0.88f, 0.96f, 1f, 1f) }
+            };
+
+            lobbyStatusStyle = new GUIStyle(GUI.skin.label)
+            {
+                alignment = TextAnchor.MiddleCenter,
+                fontSize = 11,
+                richText = true,
+                wordWrap = true,
+                normal = { textColor = new Color(0.64f, 0.78f, 0.84f, 1f) }
+            };
+
+            lobbyButtonStyle = new GUIStyle(GUI.skin.button)
+            {
+                alignment = TextAnchor.MiddleCenter,
+                fontSize = 12,
+                fontStyle = FontStyle.Bold,
+                richText = true,
+                padding = new RectOffset(8, 8, 7, 7),
+                margin = new RectOffset(0, 0, 3, 3),
+                fixedHeight = 30f
+            };
+            lobbyButtonStyle.normal.background = LobbyButtonTexture;
+            lobbyButtonStyle.normal.textColor = new Color(0.88f, 0.98f, 1f, 1f);
+            lobbyButtonStyle.hover.background = LobbyButtonHoverTexture;
+            lobbyButtonStyle.hover.textColor = Color.white;
+            lobbyButtonStyle.active.background = LobbyButtonActiveTexture;
+            lobbyButtonStyle.active.textColor = Color.white;
+            lobbyButtonStyle.focused.background = LobbyButtonHoverTexture;
+            lobbyButtonStyle.focused.textColor = Color.white;
+
+            lobbyFieldStyle = new GUIStyle(GUI.skin.textField)
+            {
+                alignment = TextAnchor.MiddleCenter,
+                fontSize = 12,
+                padding = new RectOffset(8, 8, 6, 6),
+                margin = new RectOffset(0, 0, 4, 4),
+                fixedHeight = 28f
+            };
+            lobbyFieldStyle.normal.background = LobbyFieldTexture;
+            lobbyFieldStyle.normal.textColor = Color.white;
+            lobbyFieldStyle.focused.background = LobbyButtonHoverTexture;
+            lobbyFieldStyle.focused.textColor = Color.white;
+
+            lobbyToggleStyle = new GUIStyle(GUI.skin.toggle)
+            {
+                fontSize = 11,
+                fontStyle = FontStyle.Bold,
+                richText = true,
+                wordWrap = true,
+                padding = new RectOffset(20, 4, 5, 5),
+                margin = new RectOffset(0, 0, 3, 3)
+            };
+            lobbyToggleStyle.normal.textColor = new Color(0.76f, 0.9f, 0.96f, 1f);
+            lobbyToggleStyle.onNormal.textColor = new Color(0.12f, 0.86f, 1f, 1f);
+            lobbyToggleStyle.hover.textColor = Color.white;
+            lobbyToggleStyle.onHover.textColor = Color.white;
+
+            lobbyBoxStyle = new GUIStyle(GUI.skin.box)
+            {
+                alignment = TextAnchor.MiddleCenter,
+                fontSize = 11,
+                richText = true,
+                wordWrap = true,
+                padding = new RectOffset(6, 6, 4, 4),
+                margin = new RectOffset(2, 2, 2, 2)
+            };
+            lobbyBoxStyle.normal.background = LobbyBoxTexture;
+            lobbyBoxStyle.normal.textColor = new Color(0.82f, 0.94f, 0.98f, 1f);
+
+            lobbyProgressStyle = new GUIStyle(GUI.skin.box)
+            {
+                normal = { background = ProgressTexture },
+                fixedHeight = 12f,
+                margin = new RectOffset(0, 0, 3, 3)
+            };
+        }
+
+        private void ApplyLobbySkin()
+        {
+            GUI.skin.button = lobbyButtonStyle;
+            GUI.skin.textField = lobbyFieldStyle;
+            GUI.skin.toggle = lobbyToggleStyle;
+            GUI.skin.box = lobbyBoxStyle;
+            GUI.skin.label.richText = true;
+            GUI.skin.label.wordWrap = true;
+            GUI.skin.label.normal.textColor = new Color(0.82f, 0.94f, 0.98f, 1f);
+        }
+
+        private void DrawLobbyHeader(string title, string subtitle = null)
+        {
+            GUILayout.Box(LobbyAccentTexture, GUILayout.Height(3f), GUILayout.ExpandWidth(true));
+            GUILayout.Space(7f);
+            GUILayout.Label(title, lobbyHeaderStyle);
+
+            if (!string.IsNullOrEmpty(subtitle))
+                GUILayout.Label(subtitle, lobbyStatusStyle);
+
+            GUILayout.Space(8f);
+        }
+
         private void OnGUI()
         {
             if (GameManager.instance == null || (GameManager.IsIngame() && LoadoutUi.instance != null && LoadoutUi.HasBeenClosed()))
@@ -967,19 +1142,15 @@ namespace RavenM
             if (menu_page != MainMenu.PAGE_INSTANT_ACTION)
                 return;
 
-            var lobbyStyle = new GUIStyle(GUI.skin.box);
-            lobbyStyle.normal.background = LobbyBackground;
+            EnsureLobbyStyles();
+            ApplyLobbySkin();
 
             if (GameManager.IsInMainMenu() && NotificationText != string.Empty)
             {
-                GUILayout.BeginArea(new Rect((Screen.width - 250f) / 2f, (Screen.height - 200f) / 2f, 250f, 200f), string.Empty);
-                GUILayout.BeginVertical(lobbyStyle);
+                GUILayout.BeginArea(new Rect((Screen.width - 360f) / 2f, (Screen.height - 210f) / 2f, 360f, 210f), string.Empty);
+                GUILayout.BeginVertical(lobbyPanelStyle);
 
-                GUILayout.BeginHorizontal();
-                GUILayout.FlexibleSpace();
-                GUILayout.Label("<color=red>RavenM Message:</color>");
-                GUILayout.FlexibleSpace();
-                GUILayout.EndHorizontal();
+                DrawLobbyHeader("RAVENM", "<color=#ff645d>MESSAGE</color>");
 
                 GUILayout.Space(7f);
 
@@ -1004,14 +1175,10 @@ namespace RavenM
 
             if (GameManager.IsInMainMenu() && IntentionToStart)
             {
-                GUILayout.BeginArea(new Rect((Screen.width - 250f) / 2f, (Screen.height - 200f) / 2f, 250f, 200f), string.Empty);
-                GUILayout.BeginVertical(lobbyStyle);
+                GUILayout.BeginArea(new Rect((Screen.width - 420f) / 2f, (Screen.height - 230f) / 2f, 420f, 230f), string.Empty);
+                GUILayout.BeginVertical(lobbyPanelStyle);
 
-                GUILayout.BeginHorizontal();
-                GUILayout.FlexibleSpace();
-                GUILayout.Label("<color=red>RavenM WARNING:</color>");
-                GUILayout.FlexibleSpace();
-                GUILayout.EndHorizontal();
+                DrawLobbyHeader("RAVENM", "<color=#ff645d>WARNING</color>");
 
                 GUILayout.Space(7f);
 
@@ -1042,16 +1209,12 @@ namespace RavenM
 
             if (!InLobby && GUIStack.Count != 0 && GameManager.IsInMainMenu())
             {
-                GUILayout.BeginArea(new Rect(10f, 10f, 150f, 10000f), string.Empty);
-                GUILayout.BeginVertical(lobbyStyle);
+                GUILayout.BeginArea(new Rect(LobbyPanelMargin, LobbyPanelMargin, LobbyMenuWidth, Screen.height - LobbyPanelMargin * 2f), string.Empty);
+                GUILayout.BeginVertical(lobbyPanelStyle);
 
                 if (GUIStack.Peek() == "Main")
                 {
-                    GUILayout.BeginHorizontal();
-                    GUILayout.FlexibleSpace();
-                    GUILayout.Label($"RavenM");
-                    GUILayout.FlexibleSpace();
-                    GUILayout.EndHorizontal();
+                    DrawLobbyHeader("RAVENM", $"EA36 MP BUILD {PluginInfo.PLUGIN_VERSION}");
 
                     GUILayout.Space(15f);
 
@@ -1065,11 +1228,7 @@ namespace RavenM
                 }
                 else if (GUIStack.Peek() == "Host")
                 {
-                    GUILayout.BeginHorizontal();
-                    GUILayout.FlexibleSpace();
-                    GUILayout.Label($"HOST");
-                    GUILayout.FlexibleSpace();
-                    GUILayout.EndHorizontal();
+                    DrawLobbyHeader("HOST", "CREATE A SESSION");
 
                     GUILayout.Space(5f);
 
@@ -1133,11 +1292,7 @@ namespace RavenM
                 }
                 else if (GUIStack.Peek() == "Join")
                 {
-                    GUILayout.BeginHorizontal();
-                    GUILayout.FlexibleSpace();
-                    GUILayout.Label($"JOIN");
-                    GUILayout.FlexibleSpace();
-                    GUILayout.EndHorizontal();
+                    DrawLobbyHeader("JOIN", "FIND A SESSION");
 
                     GUILayout.Space(10f);
 
@@ -1160,11 +1315,7 @@ namespace RavenM
                 }
                 else if (GUIStack.Peek() == "Direct")
                 {
-                    GUILayout.BeginHorizontal();
-                        GUILayout.FlexibleSpace();
-                            GUILayout.Label($"DIRECT CONNECT");
-                        GUILayout.FlexibleSpace();
-                    GUILayout.EndHorizontal();
+                    DrawLobbyHeader("DIRECT CONNECT", "ENTER LOBBY ID");
 
                     GUILayout.Space(10f);
 
@@ -1197,11 +1348,7 @@ namespace RavenM
                 }
                 else if (GUIStack.Peek() == "Browse")
                 {
-                    GUILayout.BeginHorizontal();
-                        GUILayout.FlexibleSpace();
-                            GUILayout.Label($"BROWSE");
-                        GUILayout.FlexibleSpace();
-                    GUILayout.EndHorizontal();
+                    DrawLobbyHeader("BROWSE", "PUBLIC LOBBIES");
 
                     GUILayout.Space(10f);
 
@@ -1257,17 +1404,7 @@ namespace RavenM
                     var owner = new CSteamID(ulong.Parse(SteamMatchmaking.GetLobbyData(LobbyView, "owner")));
                     var name = SteamFriends.GetFriendPersonaName(owner);
 
-                    GUILayout.BeginHorizontal();
-                        GUILayout.FlexibleSpace();
-                            GUILayout.Label($"{name}'s");
-                        GUILayout.FlexibleSpace();
-                    GUILayout.EndHorizontal();
-
-                    GUILayout.BeginHorizontal();
-                        GUILayout.FlexibleSpace();
-                            GUILayout.Label($"LOBBY");
-                        GUILayout.FlexibleSpace();
-                    GUILayout.EndHorizontal();
+                    DrawLobbyHeader("LOBBY", name);
 
                     GUILayout.Space(10f);
 
@@ -1331,8 +1468,8 @@ namespace RavenM
                     }
                 }
 
-                GUILayout.BeginArea(new Rect(10f, 10f, 150f, 10000f), string.Empty);
-                GUILayout.BeginVertical(lobbyStyle);
+                GUILayout.BeginArea(new Rect(LobbyPanelMargin, LobbyPanelMargin, LobbyMenuWidth, Screen.height - LobbyPanelMargin * 2f), string.Empty);
+                GUILayout.BeginVertical(lobbyPanelStyle);
 
                 var members = GetLobbyMembers();
                 int len = members.Count;
@@ -1345,19 +1482,11 @@ namespace RavenM
                     ChatManager.instance.ResetChat();
                 }
 
-                GUILayout.BeginHorizontal();
-                    GUILayout.FlexibleSpace();
-                        GUILayout.Label($"LOBBY - {len}/{SteamMatchmaking.GetLobbyMemberLimit(ActualLobbyID)}");
-                    GUILayout.FlexibleSpace();
-                GUILayout.EndHorizontal();
+                DrawLobbyHeader("RAVENM LOBBY", $"{len}/{SteamMatchmaking.GetLobbyMemberLimit(ActualLobbyID)} PLAYERS");
 
                 GUILayout.Space(5f);
 
-                GUILayout.BeginHorizontal();
-                GUILayout.FlexibleSpace();
-                GUILayout.Label(ActualLobbyID.GetAccountID().ToString());
-                GUILayout.FlexibleSpace();
-                GUILayout.EndHorizontal();
+                GUILayout.Label($"ID  {ActualLobbyID.GetAccountID()}", lobbyStatusStyle);
 
                 if (GameManager.IsInMainMenu() && GUILayout.Button("COPY ID"))
                 {
@@ -1366,11 +1495,8 @@ namespace RavenM
 
                 GUILayout.Space(15f);
 
-                GUILayout.BeginHorizontal();
-                GUILayout.FlexibleSpace();
-                GUILayout.Label("MEMBERS:");
-                GUILayout.FlexibleSpace();
-                GUILayout.EndHorizontal();
+                GUILayout.Box(LobbyAccentTexture, GUILayout.Height(2f), GUILayout.ExpandWidth(true));
+                GUILayout.Label("MEMBERS", lobbyStatusStyle);
 
                 for (int i = 0; i < len; i++)
                 {
@@ -1391,13 +1517,13 @@ namespace RavenM
                     {
                         GUILayout.BeginHorizontal();
                         if (SteamMatchmaking.GetLobbyMemberData(ActualLobbyID, memberId, "loaded") == "yes")
-                            GUILayout.Box(team);
+                            GUILayout.Box(team, GUILayout.Width(34f));
                         else
-                            GUILayout.Box($"({modsDownloaded}/{totalMods})");
+                            GUILayout.Box($"({modsDownloaded}/{totalMods})", GUILayout.Width(54f));
                         GUILayout.FlexibleSpace();
-                        GUILayout.Box($"<color={readyColor}>{name}</color>");
+                        GUILayout.Box($"<color={readyColor}>{name}</color>", GUILayout.MinWidth(110f));
                         GUILayout.FlexibleSpace();
-                        GUILayout.Box(team);
+                        GUILayout.Box(team, GUILayout.Width(34f));
                         GUILayout.EndHorizontal();
 
                         if (Event.current.type == EventType.Repaint
@@ -1438,22 +1564,12 @@ namespace RavenM
 
             if (ModsToDownload.Count > 0)
             {
-                GUILayout.BeginArea(new Rect(160f, 10f, 150f, 10000f), string.Empty);
-                GUILayout.BeginVertical(lobbyStyle);
+                GUILayout.BeginArea(new Rect(LobbyPanelMargin + LobbyMenuWidth + 10f, LobbyPanelMargin, LobbyMenuWidth, Screen.height - LobbyPanelMargin * 2f), string.Empty);
+                GUILayout.BeginVertical(lobbyPanelStyle);
 
                 int hasDownloaded = ServerMods.Count - ModsToDownload.Count;
 
-                GUILayout.BeginHorizontal();
-                GUILayout.FlexibleSpace();
-                GUILayout.Label("DOWNLOADING");
-                GUILayout.FlexibleSpace();
-                GUILayout.EndHorizontal();
-
-                GUILayout.BeginHorizontal();
-                GUILayout.FlexibleSpace();
-                GUILayout.Label("MODS:");
-                GUILayout.FlexibleSpace();
-                GUILayout.EndHorizontal();
+                DrawLobbyHeader("DOWNLOADING", "WORKSHOP MODS");
 
                 GUILayout.Space(5f);
 
@@ -1475,14 +1591,11 @@ namespace RavenM
 
                     GUILayout.Space(5f);
 
-                    GUIStyle progressStyle = new GUIStyle();
-                    progressStyle.normal.background = ProgressTexture;
-
                     GUILayout.BeginHorizontal();
-                    GUILayout.BeginVertical(progressStyle);
-                    GUILayout.Box(ProgressTexture);
+                    GUILayout.BeginVertical(lobbyProgressStyle);
+                    GUILayout.Box(ProgressTexture, GUILayout.Height(12f));
                     GUILayout.EndVertical();
-                    GUILayout.Space((float)(punBytesTotal - punBytesDownloaded) / punBytesTotal * 150f);
+                    GUILayout.Space((float)(punBytesTotal - punBytesDownloaded) / punBytesTotal * LobbyMenuWidth);
                     GUILayout.EndHorizontal();
                 }
 
