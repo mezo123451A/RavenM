@@ -8,6 +8,9 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
     <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
+    <DefaultRavenfieldManagedDir>C:\Program Files (x86)\Steam\steamapps\common\Ravenfield\ravenfield_Data\Managed</DefaultRavenfieldManagedDir>
+    <RavenfieldManagedDir Condition="'$(RavenfieldManagedDir)' == '' and Exists('$(DefaultRavenfieldManagedDir)\Assembly-CSharp.dll')">$(DefaultRavenfieldManagedDir)</RavenfieldManagedDir>
+    <RavenfieldManagedDir Condition="'$(RavenfieldManagedDir)' == ''">libs</RavenfieldManagedDir>
   </PropertyGroup>
 
    <ItemGroup>
@@ -39,63 +42,63 @@
   
  <ItemGroup>
     <Reference Include="Assembly-CSharp">
-      <HintPath>libs\Assembly-CSharp.dll</HintPath>
+      <HintPath>$(RavenfieldManagedDir)\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>libs\Assembly-CSharp-firstpass.dll</HintPath>
+      <HintPath>$(RavenfieldManagedDir)\Assembly-CSharp-firstpass.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="com.rlabrecque.steamworks.net">
-      <HintPath>libs\com.rlabrecque.steamworks.net.dll</HintPath>
+      <HintPath>$(RavenfieldManagedDir)\com.rlabrecque.steamworks.net.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="netstandard">
-      <HintPath>libs\netstandard.dll</HintPath>
+      <HintPath>$(RavenfieldManagedDir)\netstandard.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>libs\UnityEngine.dll</HintPath>
+      <HintPath>$(RavenfieldManagedDir)\UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.AudioModule">
-      <HintPath>libs\UnityEngine.AudioModule.dll</HintPath>
+      <HintPath>$(RavenfieldManagedDir)\UnityEngine.AudioModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>libs\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>$(RavenfieldManagedDir)\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.ImageConversionModule">
-      <HintPath>libs\UnityEngine.ImageConversionModule.dll</HintPath>
+      <HintPath>$(RavenfieldManagedDir)\UnityEngine.ImageConversionModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.IMGUIModule">
-      <HintPath>libs\UnityEngine.IMGUIModule.dll</HintPath>
+      <HintPath>$(RavenfieldManagedDir)\UnityEngine.IMGUIModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.InputLegacyModule">
-      <HintPath>libs\UnityEngine.InputLegacyModule.dll</HintPath>
+      <HintPath>$(RavenfieldManagedDir)\UnityEngine.InputLegacyModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.PhysicsModule">
-      <HintPath>libs\UnityEngine.PhysicsModule.dll</HintPath>
+      <HintPath>$(RavenfieldManagedDir)\UnityEngine.PhysicsModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>libs\UnityEngine.UI.dll</HintPath>
+      <HintPath>$(RavenfieldManagedDir)\UnityEngine.UI.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.UIModule">
-      <HintPath>libs\UnityEngine.UIModule.dll</HintPath>
+      <HintPath>$(RavenfieldManagedDir)\UnityEngine.UIModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.AnimationModule">
-      <HintPath>libs\UnityEngine.AnimationModule.dll</HintPath>
+      <HintPath>$(RavenfieldManagedDir)\UnityEngine.AnimationModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.AssetBundleModule">
-      <HintPath>libs\UnityEngine.AssetBundleModule.dll</HintPath>
+      <HintPath>$(RavenfieldManagedDir)\UnityEngine.AssetBundleModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>

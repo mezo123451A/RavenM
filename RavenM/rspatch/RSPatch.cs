@@ -126,18 +126,11 @@ namespace RavenM.RSPatch
         {
             if (Plugin.addToBuiltInMutators)
             {
-                foreach (MutatorEntry entry in __instance.loadedMutators)
+                foreach (MutatorEntryData entry in __instance.loadedMutators)
                 {
                     if (!__instance.builtInMutators.Contains(entry))
                     {
                         __instance.builtInMutators.Add(entry);
-                    }
-                }
-                foreach (WeaponManager.WeaponEntry weaponEntry in WeaponManager.instance.allWeapons)
-                {
-                    if (weaponEntry.sourceMod != ModInformation.OfficialContent)
-                    {
-                        WeaponManager.instance.weapons.Add(weaponEntry);
                     }
                 }
             }

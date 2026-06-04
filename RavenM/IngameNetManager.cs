@@ -1620,9 +1620,9 @@ namespace RavenM
                                 break;
                             case PacketType.GameStateUpdate:
                                 {
-                                    switch (GameModeBase.activeGameMode.gameModeType)
+                                    switch (Ea36Compat.GetGameModeType(GameModeBase.activeGameMode))
                                     {
-                                        case GameModeType.Battalion:
+                                        case GameModeType.Battle:
                                             {
                                                 var gameUpdatePacket = dataStream.ReadBattleStatePacket();
 
@@ -1909,7 +1909,7 @@ namespace RavenM
                                 {
                                     var flarePacket = dataStream.ReadFireFlarePacket();
 
-                                    if (GameModeBase.activeGameMode.gameModeType != GameModeType.SpecOps)
+                                    if (Ea36Compat.GetGameModeType(GameModeBase.activeGameMode) != GameModeType.SpecOps)
                                     {
                                         Plugin.logger.LogError("Attempted to fire flare while not in spec ops.");
                                         break;
@@ -2218,7 +2218,7 @@ namespace RavenM
                                             var destructible = destructibles[i];
 
                                             if (!destructible.isDead && destructiblePacket.States[i])
-                                                destructible.Shatter();
+                                                destructible.Shatter(null);
                                         }
                                     }
                                 }
@@ -2233,7 +2233,7 @@ namespace RavenM
                                     if (destructible == null || destructible.isDead)
                                         break;
 
-                                    destructible.Shatter();
+                                    destructible.Shatter(null);
                                 }
                                 break;
                             case PacketType.ChatCommand:
@@ -2432,9 +2432,9 @@ namespace RavenM
 
             byte[] data = null;
 
-            switch (GameModeBase.activeGameMode.gameModeType)
+            switch (Ea36Compat.GetGameModeType(GameModeBase.activeGameMode))
             {
-                case GameModeType.Battalion:
+                case GameModeType.Battle:
                     {
                         var battleObj = GameModeBase.activeGameMode as BattleMode;
 

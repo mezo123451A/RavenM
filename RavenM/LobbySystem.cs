@@ -211,7 +211,7 @@ namespace RavenM
         }
     }
 
-    [HarmonyPatch(typeof(InstantActionMaps), "SetupSkinList")]
+    [HarmonyPatch(typeof(TeamConfigPanel), nameof(TeamConfigPanel.UpdateSaveDropdowns))]
     public class SkinListPatch
     {
         static void Prefix() => ModManager.instance.actorSkins.Sort((x, y) => x.name.CompareTo(y.name));
@@ -222,10 +222,10 @@ namespace RavenM
     {
         static void Postfix()
         {
-            if (InstantActionMaps.instance != null)
+            if (Ea36Compat.HasInstantActionMenu)
             {
                 // We need to update the skin dropdown with the new mods.
-                typeof(InstantActionMaps).GetMethod("SetupSkinList", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(InstantActionMaps.instance, null);
+                Ea36Compat.RefreshSkinList();
             }
 
             ModManager.instance.ContentChanged();
@@ -627,8 +627,8 @@ namespace RavenM
         {
             ReadyToPlay = true;
             //No initial bots! Many errors otherwise!
-            InstantActionMaps.instance.botNumberField.text = "0";
-            InstantActionMaps.instance.StartGame();
+            Ea36Compat.BotNumberText = "0";
+            Ea36Compat.StartGame();
         }
 
         private void OnLobbyList(LobbyMatchList_t pCallback)
@@ -679,36 +679,36 @@ namespace RavenM
             // The latter option is the cleanest and most efficient way, but
             // the former at least has visual input for the non-host clients,
             // which is also important.
-            // InstantActionMaps.instance.gameModeDropdown.value = 0;
-            int customMapOptionIndex = (int)typeof(InstantActionMaps).GetField("customMapOptionIndex", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(InstantActionMaps.instance);
-            var entries = (List<InstantActionMaps.MapEntry>)typeof(InstantActionMaps).GetField("entries", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(InstantActionMaps.instance);
+            // InstantActionConfigMenu's EA36 controls are private; route menu sync through Ea36Compat.
+            int customMapOptionIndex = -1;
+            var entries = Ea36Compat.MapEntries;
             // Don't allow spectator.
-            if (InstantActionMaps.instance.teamDropdown.value == 2)
+            if (Ea36Compat.TeamValue == 2)
             {
-                InstantActionMaps.instance.teamDropdown.value = 0;
+                Ea36Compat.TeamValue = 0;
             }
-            SetLobbyMemberDataDedup("team", InstantActionMaps.instance.teamDropdown.value == 0 ? "<color=blue>E</color>" : "<color=red>R</color>");
+            SetLobbyMemberDataDedup("team", Ea36Compat.TeamValue == 0 ? "<color=blue>E</color>" : "<color=red>R</color>");
             
             if (IsLobbyOwner)
             {
-                SetLobbyDataDedup("gameMode", InstantActionMaps.instance.gameModeDropdown.value.ToString());
-                SetLobbyDataDedup("nightMode", InstantActionMaps.instance.nightToggle.isOn.ToString());
-                SetLobbyDataDedup("playerHasAllWeapons", InstantActionMaps.instance.playerHasAllWeaponsToggle.isOn.ToString());
-                SetLobbyDataDedup("reverseMode", InstantActionMaps.instance.reverseToggle.isOn.ToString());
-                SetLobbyDataDedup("botNumberField", InstantActionMaps.instance.botNumberField.text);
-                SetLobbyDataDedup("balance", InstantActionMaps.instance.balanceSlider.value.ToString(CultureInfo.InvariantCulture));
-                SetLobbyDataDedup("respawnTime", InstantActionMaps.instance.respawnTimeField.text);
-                SetLobbyDataDedup("gameLength", InstantActionMaps.instance.gameLengthDropdown.value.ToString());
-                SetLobbyDataDedup("loadedLevelEntry", InstantActionMaps.instance.mapDropdown.value.ToString());
+                SetLobbyDataDedup("gameMode", Ea36Compat.GameModeValue.ToString());
+                SetLobbyDataDedup("nightMode", Ea36Compat.NightMode.ToString());
+                SetLobbyDataDedup("playerHasAllWeapons", false.ToString());
+                SetLobbyDataDedup("reverseMode", false.ToString());
+                SetLobbyDataDedup("botNumberField", Ea36Compat.BotNumberText);
+                SetLobbyDataDedup("balance", Ea36Compat.BalanceValue.ToString(CultureInfo.InvariantCulture));
+                SetLobbyDataDedup("respawnTime", Ea36Compat.RespawnTimeText);
+                SetLobbyDataDedup("gameLength", Ea36Compat.GameLengthValue.ToString());
+                SetLobbyDataDedup("loadedLevelEntry", Ea36Compat.LoadedLevelEntry.ToString());
                 // For SpecOps.
-                if (InstantActionMaps.instance.gameModeDropdown.value == 1)
+                if (Ea36Compat.GameModeValue == 1)
                 {
-                    SetLobbyDataDedup("team", InstantActionMaps.instance.teamDropdown.value.ToString());
+                    SetLobbyDataDedup("team", Ea36Compat.TeamValue.ToString());
                 }
 
-                if (InstantActionMaps.instance.mapDropdown.value == customMapOptionIndex)
+                if (Ea36Compat.LoadedLevelEntry == customMapOptionIndex)
                 {
-                    SetLobbyDataDedup("customMap", entries[customMapOptionIndex].metaData.displayName);
+                    SetLobbyDataDedup("customMap", Ea36Compat.SelectedMapName);
                 }
 
                 for (int i = 0; i < 2; i++)
@@ -716,17 +716,17 @@ namespace RavenM
                     var teamInfo = GameManager.instance.gameInfo.team[i];
 
                     var weapons = new List<int>();
-                    foreach (var weapon in teamInfo.availableWeapons)
+                    foreach (var weapon in teamInfo.availableWeapons.All())
                     {
                         weapons.Add(weapon.nameHash);
                     }
                     string weaponString = string.Join(",", weapons.ToArray());
                     SetLobbyDataDedup(i + "weapons", weaponString);
 
-                    foreach (var vehiclePrefab in teamInfo.vehiclePrefab)
+                    foreach (var vehiclePrefab in teamInfo.vehicleSlot)
                     {
                         var type = vehiclePrefab.Key;
-                        var prefab = vehiclePrefab.Value;
+                        var prefab = Ea36Compat.GetTeamVehiclePrefab(teamInfo, type);
 
                         bool isDefault = true; // Default vehicle.
                         int idx = Array.IndexOf(ActorManager.instance.defaultVehiclePrefabs, prefab);
@@ -740,10 +740,10 @@ namespace RavenM
                         SetLobbyDataDedup(i + "vehicle_" + type, prefab == null ? "NULL" : isDefault + "," + idx);
                     }
 
-                    foreach (var turretPrefab in teamInfo.turretPrefab)
+                    foreach (var turretPrefab in teamInfo.turretSlot)
                     {
                         var type = turretPrefab.Key;
-                        var prefab = turretPrefab.Value;
+                        var prefab = Ea36Compat.GetTeamTurretPrefab(teamInfo, type);
 
                         bool isDefault = true; // Default turret.
                         int idx = Array.IndexOf(ActorManager.instance.defaultTurretPrefabs, prefab);
@@ -759,7 +759,7 @@ namespace RavenM
                         SetLobbyDataDedup(i + "turret_" + type, prefab == null ? "NULL" : isDefault + "," + idx);
                     }
 
-                    SetLobbyDataDedup(i + "skin", InstantActionMaps.instance.skinDropdowns[i].value.ToString());
+                    SetLobbyDataDedup(i + "skin", Ea36Compat.SkinValue(i).ToString());
                 }
 
                 var enabledMutators = new List<int>();
@@ -779,7 +779,7 @@ namespace RavenM
                     var serializedMutators = new JSONArray();
                     foreach (var item in mutator.configuration.GetAllFields())
                     {
-                        JSONNode node = new JSONString(item.SerializeValue());
+                        JSONNode node = new JSONString(Ea36Compat.SerializeMutatorField(mutator, item));
                         serializedMutators.Add(node);
                     }
                     
@@ -789,19 +789,17 @@ namespace RavenM
             }
             else if (SteamMatchmaking.GetLobbyMemberData(ActualLobbyID, SteamUser.GetSteamID(), "loaded") == "yes")
             {
-                InstantActionMaps.instance.gameModeDropdown.value = int.Parse(SteamMatchmaking.GetLobbyData(ActualLobbyID, "gameMode"));
-                InstantActionMaps.instance.nightToggle.isOn = bool.Parse(SteamMatchmaking.GetLobbyData(ActualLobbyID, "nightMode"));
-                InstantActionMaps.instance.playerHasAllWeaponsToggle.isOn = bool.Parse(SteamMatchmaking.GetLobbyData(ActualLobbyID, "playerHasAllWeapons"));
-                InstantActionMaps.instance.reverseToggle.isOn = bool.Parse(SteamMatchmaking.GetLobbyData(ActualLobbyID, "reverseMode"));
-                InstantActionMaps.instance.configFlagsToggle.isOn = false;
-                InstantActionMaps.instance.botNumberField.text = SteamMatchmaking.GetLobbyData(ActualLobbyID, "botNumberField");
-                InstantActionMaps.instance.balanceSlider.value = float.Parse(SteamMatchmaking.GetLobbyData(ActualLobbyID, "balance"), CultureInfo.InvariantCulture);
-                InstantActionMaps.instance.respawnTimeField.text = SteamMatchmaking.GetLobbyData(ActualLobbyID, "respawnTime");
-                InstantActionMaps.instance.gameLengthDropdown.value = int.Parse(SteamMatchmaking.GetLobbyData(ActualLobbyID, "gameLength"));
+                Ea36Compat.GameModeValue = int.Parse(SteamMatchmaking.GetLobbyData(ActualLobbyID, "gameMode"));
+                Ea36Compat.NightMode = bool.Parse(SteamMatchmaking.GetLobbyData(ActualLobbyID, "nightMode"));
+                Ea36Compat.ConfigFlags = false;
+                Ea36Compat.BotNumberText = SteamMatchmaking.GetLobbyData(ActualLobbyID, "botNumberField");
+                Ea36Compat.BalanceValue = float.Parse(SteamMatchmaking.GetLobbyData(ActualLobbyID, "balance"), CultureInfo.InvariantCulture);
+                Ea36Compat.RespawnTimeText = SteamMatchmaking.GetLobbyData(ActualLobbyID, "respawnTime");
+                Ea36Compat.GameLengthValue = int.Parse(SteamMatchmaking.GetLobbyData(ActualLobbyID, "gameLength"));
                 // For SpecOps.
-                if (InstantActionMaps.instance.gameModeDropdown.value == 1)
+                if (Ea36Compat.GameModeValue == 1)
                 {
-                    InstantActionMaps.instance.teamDropdown.value = int.Parse(SteamMatchmaking.GetLobbyData(ActualLobbyID, "team"));
+                    Ea36Compat.TeamValue = int.Parse(SteamMatchmaking.GetLobbyData(ActualLobbyID, "team"));
                 }
 
                 bool doubleCheck = false; //fix for entering into the wrong map with midgame joining
@@ -814,9 +812,9 @@ namespace RavenM
                     {
                         string mapName = SteamMatchmaking.GetLobbyData(ActualLobbyID, "customMap");
 
-                        if (InstantActionMaps.instance.mapDropdown.value != customMapOptionIndex || entries[customMapOptionIndex].metaData.displayName != mapName)
+                        if (Ea36Compat.LoadedLevelEntry != customMapOptionIndex || entries[customMapOptionIndex].metaData.displayName != mapName)
                         {
-                            foreach (Transform item in InstantActionMaps.instance.customMapsBrowser.contentPanel) 
+                            foreach (Transform item in CustomMapsBrowser.instance.contentPanel) 
                             {
                                 var entry = item.gameObject.GetComponent<CustomMapEntry>();
                                 if (entry.entry.metaData.displayName == mapName)
@@ -829,7 +827,7 @@ namespace RavenM
                     }
                     else
                     {
-                        InstantActionMaps.instance.mapDropdown.value = givenEntry;
+                        Ea36Compat.LoadedLevelEntry = givenEntry;
                     }
                 }
 
@@ -838,7 +836,7 @@ namespace RavenM
                 {
                     var teamInfo = GameManager.instance.gameInfo.team[i];
 
-                    teamInfo.availableWeapons.Clear();
+                    teamInfo.ClearWeaponEntries();
                     string[] weapons = SteamMatchmaking.GetLobbyData(ActualLobbyID, i + "weapons").Split(',');
                     foreach (string weapon_str in weapons)
                     {
@@ -846,14 +844,14 @@ namespace RavenM
                             continue;
                         int hash = int.Parse(weapon_str);
                         var weapon = NetActorController.GetWeaponEntryByHash(hash);
-                        teamInfo.availableWeapons.Add(weapon);
+                        teamInfo.AddWeaponEntry(weapon);
                     }
 
                     bool changedVehicles = false;
                     foreach (var vehicleType in (VehicleSpawner.VehicleSpawnType[])Enum.GetValues(typeof(VehicleSpawner.VehicleSpawnType)))
                     {
                         var type = vehicleType;
-                        var prefab = teamInfo.vehiclePrefab[type];
+                        var prefab = Ea36Compat.GetTeamVehiclePrefab(teamInfo, type);
 
                         var targetPrefab = SteamMatchmaking.GetLobbyData(ActualLobbyID, i + "vehicle_" + type);
 
@@ -877,14 +875,14 @@ namespace RavenM
                         if (prefab != newPrefab)
                             changedVehicles = true;
 
-                        teamInfo.vehiclePrefab[type] = newPrefab;
+                        Ea36Compat.SetTeamVehiclePrefab(teamInfo, type, newPrefab);
                     }
 
                     bool changedTurrets = false;
                     foreach (var turretType in (TurretSpawner.TurretSpawnType[])Enum.GetValues(typeof(TurretSpawner.TurretSpawnType)))
                     {
                         var type = turretType;
-                        var prefab = teamInfo.turretPrefab[type];
+                        var prefab = Ea36Compat.GetTeamTurretPrefab(teamInfo, type);
 
                         var targetPrefab = SteamMatchmaking.GetLobbyData(ActualLobbyID, i + "turret_" + type);
 
@@ -909,13 +907,13 @@ namespace RavenM
                         if (prefab != newPrefab)
                             changedTurrets = true;
 
-                        teamInfo.turretPrefab[type] = newPrefab;
+                        Ea36Compat.SetTeamTurretPrefab(teamInfo, type, newPrefab);
                     }
 
                     if (changedVehicles || changedTurrets)
                         GamePreview.UpdatePreview();
 
-                    InstantActionMaps.instance.skinDropdowns[i].value = int.Parse(SteamMatchmaking.GetLobbyData(ActualLobbyID, i + "skin"));
+                    Ea36Compat.SetSkinValue(i, int.Parse(SteamMatchmaking.GetLobbyData(ActualLobbyID, i + "skin")));
                 }
 
                 string[] enabledMutators = SteamMatchmaking.GetLobbyData(LobbySystem.instance.ActualLobbyID, "mutators").Split(',');
@@ -950,9 +948,9 @@ namespace RavenM
                             for (int i = 0; i < mutator.configuration.GetAllFields().Count(); i++)
                             {
                                 var item = mutator.configuration.GetAllFields().ElementAt(i);
-                                if (item.SerializeValue() != "")
+                                if (Ea36Compat.SerializeMutatorField(mutator, item) != "")
                                 {
-                                    item?.DeserializeValue(config[i]);
+                                    Ea36Compat.DeserializeMutatorField(mutator, item, config[i]);
                                 }
                             }
                         }
@@ -1040,7 +1038,7 @@ namespace RavenM
                 if (GUILayout.Button("<color=green>CONTINUE</color>")) {
                     HasCommittedToStart = true;
                     IntentionToStart = false;
-                    InstantActionMaps.instance.StartGame();
+                    Ea36Compat.StartGame();
                 }
                 if (GUILayout.Button("ABORT")) {
                     IntentionToStart = false;

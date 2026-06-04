@@ -70,7 +70,7 @@ namespace RavenM
             }
         }
 
-        public static readonly int EXPECTED_BUILD_NUMBER = 29;
+        public static readonly int EXPECTED_BUILD_NUMBER = Ea36Compat.ExpectedBuildNumber;
 
         private ConfigEntry<bool> configRavenMDevMod;
         private ConfigEntry<bool> configRavenMAddToBuiltInMutators;

@@ -141,8 +141,7 @@ namespace RavenM
 
             if (_isInGame && !_isInLobby)
             {
-                var dropdown = InstantActionMaps.instance.gameModeDropdown;
-                _gameMode = dropdown.options[dropdown.value].text;
+                _gameMode = Ea36Compat.GameModeText;
                 UpdateActivity(Discord, Activities.InSinglePlayerGame, true ,_gameMode);
             }
             else if (_isInLobby)
@@ -152,8 +151,7 @@ namespace RavenM
 
                 if (!_isInGame) // Waiting in Lobby
                 {
-                    var dropdown = InstantActionMaps.instance.gameModeDropdown;
-                    _gameMode = dropdown.options[dropdown.value].text;
+                    _gameMode = Ea36Compat.GameModeText;
                     UpdateActivity(Discord, Activities.InLobby, false ,_gameMode, currentLobbyMembers, currentLobbyMemberCap, LobbySystem.instance.ActualLobbyID.ToString());
                 }
                 else // Playing in a Lobby

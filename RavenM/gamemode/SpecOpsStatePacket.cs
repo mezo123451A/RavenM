@@ -79,7 +79,7 @@ namespace RavenM
             if (!LobbySystem.instance.InLobby)
                 return;
 
-            if (GameModeBase.activeGameMode.gameModeType != GameModeType.SpecOps)
+            if (Ea36Compat.GetGameModeType(GameModeBase.activeGameMode) != GameModeType.SpecOps)
                 return;
 
             if (__instance.team != (GameModeBase.activeGameMode as SpecOpsMode).attackingTeam)
